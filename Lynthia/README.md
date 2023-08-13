@@ -8,4 +8,6 @@
 - **rows:** represent the number of scan ranges
 - **columns:** represent the point clouds per scan
 
-## 
+## Useful Link
+- Code is based on the link below
+- https://github.com/meyiao/LaserSLAM.git 
