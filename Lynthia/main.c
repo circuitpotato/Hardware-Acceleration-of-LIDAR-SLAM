@@ -355,7 +355,7 @@ myLocalMap ExtractLocalMap(my_map map, double pose[3], ScanData scan, double bor
 
 // Helper function to calculate the Euclidean distance
 float euclidean_distance(int x1, int y1, int x2, int y2) {
-    return (float)sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+    return (float) sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
 // Function to compute Euclidean distance transform
@@ -392,27 +392,45 @@ typedef struct {
     float * metricMap;
     double pixelSize;
     double * topLeftCorner;
+
+    int * occGrid2;
+    int sizeGridrow2;
+    int sizeGridcolumn2;
+    float * metricMap2;
+    double pixelSize2;
+    double * topLeftCorner2;
 } my_grid;
+
 
 my_grid OccuGrid(myLocalMap localMap, double pixelSize){
     double minXY[2] = {localMap.x[0], localMap.y[0]};
     double maxXY[2] = {localMap.x[0], localMap.y[0]};
     double Sgrid[2];
 
+    double minXY2[2];
+    double maxXY2[2];
+    double Sgrid2[2];
+
     for(int a = 0; a < localMap.size; a++){
         if (localMap.x[a] < minXY[0]){
             minXY[0] = localMap.x[a];
+            minXY2[0] = minXY[0];
         }
         if (localMap.x[a] > maxXY[0]){
             maxXY[0] = localMap.x[a];
+            maxXY2[0] = maxXY[0];
         }
         if (localMap.y[a] < minXY[1]){
             minXY[1] = localMap.y[a];
+            minXY2[1] = minXY[1];
         }
         if (localMap.y[a] > maxXY[1]){
             maxXY[1] = localMap.y[a];
+            maxXY2[1] = maxXY[1];
         }
     }
+
+
 
     // Grid Size
     for (int a = 0; a < 2; a++) {
@@ -555,10 +573,10 @@ int main() {
     /*******Timing Starts here***************/
 
     // initiate first scan
-    for (int i = 0; i < row; i++) {
+    for (int i = 0; i < 1000; i++) {
         ScanData scan = readAScan(lidar, test_input_memory, i, 24);     // read a clean scan range
+        printf("%d\n", i);
 
-        free(lidar.angles);     // free dynamically allocated memory
 
         // convert to transformeed scan range
         // use "theoretical pose" to test
@@ -572,7 +590,7 @@ int main() {
         }
 
         /*==================================Matching current scan to local map =======================================*/
-        if (miniUpdated == 1 && i == 1){
+        if (miniUpdated == 1){
             //ExtractLocalMap(my_map map, double pose[3], ScanData scan, double borderSize, double localMap[][2])
             myLocalMap localMap = ExtractLocalMap(map, pose, scan, borderSize);
 //                printf("size of localMap = %d\n", localMap.size);
@@ -581,24 +599,26 @@ int main() {
 //                    printf("%f %f\n", localMap.x[a], localMap.y[a]);    // localMap values
 //                }
 
-                my_grid gridmap1 = OccuGrid(localMap,pixelSize);
+            my_grid gridmap = OccuGrid(localMap,pixelSize);
 
-                my_grid gridmap2 = OccuGrid(localMap,(pixelSize/2));
+            //my_grid gridmap2 = OccuGrid(localMap,(pixelSize/2));
 
 //                //printf("gridmap1 pixelSize = %f\n", gridmap1.pixelSize);
 
 //                printf("gridmap2 pixelSize = %f\n", gridmap2.pixelSize);
 
 
-                for (int a = 0; a < gridmap1.sizeGridrow; a++){
-                    for (int b = 0; b < gridmap1.sizeGridcolumn; b++){
-                        if ((int)gridmap1.metricMap[a * gridmap1.sizeGridcolumn + b] == 0){
-                            printf("grid[%d][%d]\n", a, b);
-                            //printf("%d\n", a);
-                            //printf("%d\n", b);
-                        }
-                    }
-                }
+//            for (int a = 0; a < gridmap1.sizeGridrow; a++){
+//                for (int b = 0; b < gridmap1.sizeGridcolumn; b++){
+//                    if ((int)gridmap1.metricMap[a * gridmap1.sizeGridcolumn + b] == 0){
+//                        printf("grid[%d][%d]\n", a, b);
+//                        //printf("%d\n", a);
+//                        //printf("%d\n", b);
+//                    }
+//                }
+//            }
+
+
 //                for (int a = 0; a < gridmap2.sizeGridrow; a++){
 //                    for (int b = 0; b < gridmap2.sizeGridcolumn; b++){
 //                        if ((int)gridmap2.metricMap[a * gridmap2.sizeGridcolumn + b] == 0){
@@ -611,12 +631,8 @@ int main() {
         }
     }
 
-
     /*******Timing Ends here*****************/
 
-
-
-
+    free(lidar.angles);     // free dynamically allocated memory
     return 0;
 }
-
