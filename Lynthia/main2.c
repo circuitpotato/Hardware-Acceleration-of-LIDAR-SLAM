@@ -354,35 +354,37 @@ myLocalMap ExtractLocalMap(my_map map, double pose[3], ScanData scan, double bor
 }
 
 // Helper function to calculate the Euclidean distance
-float euclidean_distance(int x1, int y1, int x2, int y2) {
-    return (float) sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+float euclidean_distance(int x1, int y1, int x2, int y2, int width) {
+    return (float)sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
 }
 
 // Function to compute Euclidean distance transform
-int euclidean_column = 1;
-void euclidean_distance_transform(const int input[][euclidean_column], float output[][euclidean_column], int width, int height) {
+void euclidean_distance_transform(const int input[], float output[], int width, int height) {
     float MAX_DIST = 10;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            if (input[y][x] != 0) {
-                output[y][x] = 0;
+            int index = y * width + x; // Calculate the 1D index from 2D coordinates
+            if (input[index] != 0) {
+                output[index] = 0;
             } else {
                 float min_dist = MAX_DIST;
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
-                        if (input[j][i] != 0) {
-                            float dist = euclidean_distance(x, y, i, j);
+                        int idx = j * width + i; // Calculate the 1D index from 2D coordinates
+                        if (input[idx] != 0) {
+                            float dist = euclidean_distance(x, y, i, j, width);
                             if (dist < min_dist) {
                                 min_dist = dist;
                             }
                         }
                     }
                 }
-                output[y][x] = min_dist;
+                output[index] = min_dist;
             }
         }
     }
 }
+
 
 
 typedef struct {
@@ -432,9 +434,7 @@ my_grid OccuGrid(myLocalMap localMap, double pixelSize){
     double hits[2];
     double idx[localMap.size];
     //printf("Local Map size = %d\n", (int)localMap.size);
-    int grid[(int) Sgrid[1]][(int)Sgrid[0]];
-
-
+    int grid[(int) Sgrid[1]*(int)Sgrid[0]];
 
     for (int a = 0; a < localMap.size; a++){
         hits[0] = round((localMap.x[a] - minXY[0]) / pixelSize) + 1;
@@ -448,16 +448,16 @@ my_grid OccuGrid(myLocalMap localMap, double pixelSize){
     }
 
     int temp_grid_index = 0;
-    for (int b = 0; b < (int)Sgrid[0]; b++){
-        for (int a = 0; a < (int)Sgrid[1]; a++){
-            grid[a][b] = temp_grid[temp_grid_index];
+    for (int b = 0; b < (int)Sgrid[0]; b++) {
+        for (int a = 0; a < (int)Sgrid[1]; a++) {
+            int grid_index = a * (int)Sgrid[0] + b; // Calculate the 1D index for the 'grid' array
+            grid[grid_index] = temp_grid[temp_grid_index];
             temp_grid_index++;
         }
     }
 
-    float metric_map[(int) Sgrid[1]][(int)Sgrid[0]];
+    float metric_map[(int) Sgrid[1]*(int)Sgrid[0]];
 
-    euclidean_column = (int)Sgrid[0];
     euclidean_distance_transform(grid, metric_map, (int) Sgrid[0], (int) Sgrid[1]);
 
     my_grid gridmap;
@@ -543,9 +543,9 @@ int main() {
 //                printf("gridmap2 pixelSize = %f\n", gridmap2.pixelSize);
 
 
-//            for (int a = 0; a < gridmap1.sizeGridrow; a++){
-//                for (int b = 0; b < gridmap1.sizeGridcolumn; b++){
-//                    if ((int)gridmap1.metricMap[a * gridmap1.sizeGridcolumn + b] == 0){
+//            for (int a = 0; a < gridmap.sizeGridrow; a++){
+//                for (int b = 0; b < gridmap.sizeGridcolumn; b++){
+//                    if ((int)gridmap.metricMap[a * gridmap.sizeGridcolumn + b] == 0){
 //                        printf("grid[%d][%d]\n", a, b);
 //                        //printf("%d\n", a);
 //                        //printf("%d\n", b);
