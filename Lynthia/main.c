@@ -536,20 +536,18 @@ int main() {
 //                    printf("%f %f\n", localMap.x[a], localMap.y[a]);    // localMap values
 //                }
 
-            my_grid gridmap1 = OccuGrid(localMap,pixelSize);
-            my_grid gridmap2 = OccuGrid(localMap,pixelSize);
+            my_grid gridmap1 = OccuGrid(localMap,pixelSize/2);
+            //my_grid gridmap2 = OccuGrid(localMap,pixelSize/2);
 
-            free(localMap.x);
-            free(localMap.y);
 
 //                //printf("gridmap1 pixelSize = %f\n", gridmap1.pixelSize);
 
 //                printf("gridmap2 pixelSize = %f\n", gridmap2.pixelSize);
 
 
-//            for (int a = 0; a < gridmap.sizeGridrow; a++){
-//                for (int b = 0; b < gridmap.sizeGridcolumn; b++){
-//                    if ((int)gridmap.metricMap[a * gridmap.sizeGridcolumn + b] == 0){
+//            for (int a = 0; a < gridmap1.sizeGridrow; a++){
+//                for (int b = 0; b < gridmap1.sizeGridcolumn; b++){
+//                    if ((int)gridmap1.metricMap[a * gridmap1.sizeGridcolumn + b] == 0){
 //                        printf("grid[%d][%d]\n", a, b);
 //                        //printf("%d\n", a);
 //                        //printf("%d\n", b);
@@ -568,10 +566,6 @@ int main() {
 //                    }
 //                }
 
-            free(gridmap1.occGrid);
-            free(gridmap2.occGrid);
-            free(gridmap1.metricMap);
-            free(gridmap2.metricMap);
         }
 
         // free scan values if no need
