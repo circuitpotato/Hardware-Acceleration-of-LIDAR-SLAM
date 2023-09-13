@@ -11,6 +11,10 @@
 #define MAX_LANDMARKS 100
 float test_input_memory[row][column];
 using namespace std;
+// Things to do : (Finish picking a SLAM Algorithim, Focus exclusivley on it)(Let Her know by this week that the alogrithim by this week, Finish 10-20% of it, Get Dataset for it working)
+// Define necessary matrices and variables
+// Lynthia's code doesn't have a pose model and works based on guessing what the pose should be, that leave me with 2 options. Either I superimpose a pose model ontop of this data or else I pick a different datashet to run this on
+
 typedef struct {
     float* x;
     float* y;
