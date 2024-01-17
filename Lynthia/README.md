@@ -4,7 +4,7 @@
 - Dataset used is A.csv
 
 ## Dataset (A.csv)
-- 5522 rows by 1079 values
+- 3480 rows by 1079 values
 - **rows:** represent the number of scan ranges
 - **columns:** represent the point clouds per scan
 
