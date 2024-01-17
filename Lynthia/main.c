@@ -775,7 +775,7 @@ void DiffPose(const float pose1[3], const float pose2[3], float dp[3]){
     for (int i = 0; i < 3; i++){
         dp[i] = pose2[i] - pose1[i];
     }
-    dp[2] = pose2[2] - pose1[2];
+    dp[2] = pose1[2] - pose2[2];
 }
 
 void AddKeyScan(){
@@ -815,7 +815,7 @@ int main(){
     float pose_guess[3];
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 100; scan_iter++){
+    for (scan_iter = 1; scan_iter < 22; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
@@ -912,15 +912,9 @@ int main(){
         }
 
 
-//        if (scan_iter  + 1== 80){
-//            pose[0] = -0.6250;
-//            pose[1] = -0.2500;
-//            pose[2] = 0.6240;
-//        }
 
 
-
-//        printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
+        printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
         path[0][path_iter] = pose[0];
         path[1][path_iter] = pose[1];
         path[2][path_iter] = pose[2];
