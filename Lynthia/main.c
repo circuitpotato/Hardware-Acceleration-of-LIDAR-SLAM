@@ -405,6 +405,8 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
     float tx_temp;
     float ty_temp;
 
+    float score;
+
     // get pixelscan
     for (int a = 0; a < scan.size; a++){
         pixelScan_x[a] = scan.x[a] * ipixel;
@@ -509,7 +511,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
-                    float score = 0;
+                    score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
                         score = score + FastMatchParameters.bestHits[i5];
                     }
@@ -596,10 +598,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
     float ct;
     float st;
 
-
     float theta_temp;
     float tx_temp;
     float ty_temp;
+    float score;
 
     // get pixelscan
     for (int a = 0; a < scan.size; a++){
@@ -702,7 +704,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
-                    float score = 0;
+                    score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
                         score = score + FastMatchParameters.bestHits[i5];
                     }
@@ -809,7 +811,7 @@ int main(){
 
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 100; scan_iter++){
+    for (scan_iter = 1; scan_iter < 300; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
