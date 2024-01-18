@@ -150,7 +150,7 @@ typedef struct{
 
 myLocalMap local_map;
 
-myLocalMap ExtractLocalMap(ScanData SCAN, float BORDERSIZE){
+myLocalMap ExtractLocalMap(const ScanData SCAN, const float BORDERSIZE){
     float minX = SCAN.x[0];
     float minY = SCAN.y[0];
     float maxX = SCAN.x[0];
@@ -298,7 +298,7 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
     }
 
     int hits[2];
-    float hits2[2];
+    int hits2[2];
     int idx_occGrid[local_map.size];
     int idx_occGrid2[local_map.size];
 
@@ -330,8 +330,8 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
         hits[0] = (int)roundf(x_minus_minX / PIXELSIZE) + 1;
         hits[1] = (int)roundf(y_minus_minY / PIXELSIZE) + 1;
 
-        hits2[0] = roundf(x_minus_minX2 / PIXELSIZE2) + 1;
-        hits2[1] = roundf(y_minus_minY2 / PIXELSIZE2) + 1;
+        hits2[0] = (int)roundf(x_minus_minX2 / PIXELSIZE2) + 1;
+        hits2[1] = (int)roundf(y_minus_minY2 / PIXELSIZE2) + 1;
 
         idx_occGrid[a] = (int)( ((float)(hits[1] - 1) * (float)Sgrid[0]) + (float)hits[0] ) - 1;
         idx_occGrid2[a] = (int)( ((float)(hits2[1] - 1) * (float)Sgrid2[0]) + (float)hits2[0] ) - 1;
@@ -356,8 +356,8 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
 }
 
 // more Scan Matching stuff
-float pixelScan_x[row*2];
-float pixelScan_y[row*2];
+float pixelScan_x[row];
+float pixelScan_y[row];
 float S_x[row*2];
 float S_y[row*2];
 float Sx[row*2];
@@ -371,7 +371,7 @@ LidarParameters lidar;
 
 typedef struct {
     float pose[3];
-    float bestHits[2000];
+    float bestHits[2500];
     int bestHits_size;
 } MyFastMatchParameters;
 MyFastMatchParameters FastMatchParameters;
@@ -440,8 +440,10 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
             st = sinf(theta_temp);
 
             for (int q = 0; q < scan.size; q++){
-                S_x[q] = (pixelScan_x[q]*ct) + (pixelScan_y[q]*(-st));
-                S_y[q] = (pixelScan_x[q]*(st)) + (pixelScan_y[q]*ct);
+//                S_x[q] = (pixelScan_x[q]*ct) + (pixelScan_y[q]*(-st));
+//                S_y[q] = (pixelScan_x[q]*(st)) + (pixelScan_y[q]*ct);
+                S_x[q] = (pixelScan_x[q]*ct) + (pixelScan_y[q]*(st));
+                S_y[q] = (pixelScan_x[q]*(-st)) + (pixelScan_y[q]*ct);
                 //printf("S[%d] = %f %f\n", q, S_x[q], S_y[q]);
             }
 
@@ -568,9 +570,19 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
     FastMatchParameters.pose[0] = bestPose[0];
     FastMatchParameters.pose[1] = bestPose[1];
     FastMatchParameters.pose[2] = bestPose[2];
+
 }
-float hits_fastmatch2[2500];
+
 void FastMatch2(const float POSE[3], const float searchResolution[3]){
+//    memset(pixelScan_x, 0, sizeof(pixelScan_x));
+//    memset(pixelScan_y, 0, sizeof(pixelScan_y));
+//    memset(S_x, 0, sizeof(S_x));
+//    memset(S_y, 0, sizeof(S_y));
+//    memset(Sx, 0, sizeof(Sx));
+//    memset(Sy, 0, sizeof(Sy));
+//    memset(ix, 0, sizeof(ix));
+//    memset(iy, 0, sizeof(iy));
+
     // Grid Map Information
     float ipixel = 1/occ_grid.pixel_size2;
     float minX = occ_grid.top_left_corner2[0];
@@ -579,14 +591,6 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
     float r = searchResolution[2];
     int nRows = occ_grid.grid_size2[0];
     int nCols = occ_grid.grid_size2[1];
-
-//    printf("ipixel = %f \n", ipixel);
-//    printf("minX = %f \n", minX);
-//    printf("minY = %f \n", minY);
-//    printf("nRows = %d\n", nRows);
-//    printf("nCols = %d\n", nCols);
-//    printf("t = %f\n", t);
-//    printf("r = %f\n", r);
 
     // Go down the hill
     int maxIter = 50;
@@ -615,10 +619,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
     for (int a = 0; a < scan.size; a++){
         pixelScan_x[a] = scan.x[a] * ipixel;
         pixelScan_y[a] = scan.y[a] * ipixel;
-//        printf("scan[%d] %f %f\n", a, pixelScan_x[a], pixelScan_y[a]);
+        //printf("scan[%d] %f %f\n", a, pixelScan_x[a], pixelScan_y[a]);
     }
     float bestPose[3] = {POSE[0], POSE[1], POSE[2]};
-//    printf("bestpose = %f  %f  %f\n", bestPose[0], bestPose[1], bestPose[2]);
+
 
     while (iter < maxIter){
         noChange = 1;
@@ -635,13 +639,13 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
             else {
                 theta_temp = POSE[2] + r;
             }
-//            printf("theta[%d] = %f\n", theta_index, theta_temp);
+//            printf("theta[%d] = %f\n", theta_index, theta[theta_index]);
             ct = cosf(theta_temp);
             st = sinf(theta_temp);
 
             for (int q = 0; q < scan.size; q++){
-                S_x[q] = (pixelScan_x[q]*ct) + (pixelScan_y[q]*(-st));
-                S_y[q] = (pixelScan_x[q]*(st)) + (pixelScan_y[q]*ct);
+                S_x[q] = (pixelScan_x[q]*ct) + (pixelScan_y[q]*(st));
+                S_y[q] = (pixelScan_x[q]*(-st)) + (pixelScan_y[q]*ct);
                 //printf("S[%d] = %f %f\n", q, S_x[q], S_y[q]);
             }
 
@@ -657,13 +661,12 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                 else {
                     tx_temp = POSE[0] + t;
                 }
-//                printf("tx[%d] = %f\n", tx_index, tx_temp);
+//                printf("tx[%d] = %f\n", tx_index, tx[tx_index]);
 
                 // get Sx
                 for (int i = 0; i < scan.size; i++){
                     Sx[i] = roundf(S_x[i] + (tx_temp - minX)*ipixel) + 1;
-//                    if (iter == 0 && theta_index == 0 && tx_index == 0)
-//                        printf("Sx[%d] = %d\n", i, (int)Sx[i]);
+                    //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
                 for (ty_index = 0; ty_index < 3; ty_index++){
@@ -677,19 +680,18 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                     else {
                         ty_temp = POSE[1] + t;
                     }
-//                    printf("ty[%d] = %f\n", ty_index, ty_temp);
+//                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
                     for (int i2 = 0; i2 < scan.size; i2++){
                         Sy[i2] = roundf(S_y[i2] + (ty_temp - minY)*ipixel) + 1;
-//                        if (iter == 0 && theta_index == 0 && tx_index == 0 && ty_index == 0)
-//                            printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
+                        //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
-                    int ixy_index = 0;
+                    int ixy_index =0;
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
-                        if ((Sx[i3] > 1.0) && (Sy[i3] > 1.0) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
+                        if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
                             ix[ixy_index] = Sx[i3];   // ix
                             iy[ixy_index] = Sy[i3];   // iy
 
@@ -709,18 +711,16 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
 
                     //printf("ixy %d\n", ixy_index);
-                    //float sum = 0;
                     for (int i4 = 0; i4 < ixy_index; i4++){
-                        hits_fastmatch2[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
-//                        if (iter == 0 && theta_index == 0 && tx_index == 0 && ty_index == 0)
-//                            printf("%f\n", hits[i4]);
+                        hits_fastmatch[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
+                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
                     float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
-                        score = score + hits_fastmatch2[i5];
+                        score = score + hits_fastmatch[i5];
                     }
-//                        printf("score = %f\n", score);
+//                    printf("score = %f\n", score);
 
                     // update
 //                    printf("tx = %f\n", tx_temp);
@@ -728,17 +728,20 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                     if (score < bestScore){
 //                        printf("tx = %f\n", tx_temp);
 //                        printf("tx[%d] = %f\n", tx_index, tx[tx_index]);
-//                        if (scan_iter + 1 == 2)
-//                            printf("score FastMatch2 = %f\n", score);
+//                        printf("score = %f\n", score);
                         noChange = 0;
                         bestPose[0] = tx_temp;
                         bestPose[1] = ty_temp;
                         bestPose[2] = theta_temp;
-//                        if (scan_iter + 1 == 21)
-//                            printf("bestPose FastMatch2 = %f  %f  %f\n", tx_temp, ty_temp, theta_temp);
+
+                        if (scan_iter + 1 == 21 && searchResolution[0] == 0.05f) {
+//                            printf("bestPose FastMatch = %f  %f  %f\n", tx_temp, ty_temp, theta_temp);
+                            printf("score = %f\n", score);
+                        }
+
                         bestScore = score;
                         for (int q = 0; q < ixy_index; q++){
-                            FastMatchParameters.bestHits[q] = hits_fastmatch2[q];
+                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
                         }
                         FastMatchParameters.bestHits_size = ixy_index;
 //                        printf("ixy index = %d\n", ixy_index);
@@ -748,7 +751,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
             }
         }
 
-//        // No better match was found, increase resolution
+        // No better match was found, increase resolution
         if (noChange == 1){
 //            r/=2;
 //            printf("r = %f\n", r);
@@ -771,11 +774,12 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
 }
 
+
 void DiffPose(const float pose1[3], const float pose2[3], float dp[3]){
     for (int i = 0; i < 3; i++){
         dp[i] = pose2[i] - pose1[i];
     }
-    dp[2] = pose1[2] - pose2[2];
+    dp[2] = pose2[2] - pose1[2];
 }
 
 void AddKeyScan(){
@@ -815,7 +819,7 @@ int main(){
     float pose_guess[3];
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 22; scan_iter++){
+    for (scan_iter = 1; scan_iter < 1000; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
@@ -833,13 +837,21 @@ int main(){
         if (scan_iter > 1) {
             float previous_pose[3];
 //            printf("previous pose = %f  %f  %f\n", previous_pose[0], previous_pose[1], previous_pose[2]);
-            previous_pose[0] = path[0][path_iter-1];
-            previous_pose[1] = path[1][path_iter-1];
-            previous_pose[2] = path[2][path_iter-1];
-            DiffPose(previous_pose, pose, pose_guess);
-            for (int i = 0; i < 2; i++){
-                pose_guess[i] = pose_guess[i] + pose[i];
+            previous_pose[0] = path[0][path_iter-2];
+            previous_pose[1] = path[1][path_iter-2];
+            previous_pose[2] = path[2][path_iter-2];
+//            printf("previous pose = %f  %f  %f\n", previous_pose[0], previous_pose[1], previous_pose[2]);
+//            printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
+            float my_dp[3];
+            DiffPose(previous_pose, pose, my_dp);
+
+//            printf("dp = %f  %f  %f\n", my_dp[0], my_dp[1], my_dp[2]);
+//            printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
+
+            for (int i = 0; i < 3; i++){
+                pose_guess[i] = pose[i] + my_dp[i];
             }
+//            printf("pose_guess = %f  %f  %f\n", pose_guess[0], pose_guess[1], pose_guess[2]);
         }
         else {
             pose_guess[0] = pose[0];
@@ -855,25 +867,30 @@ int main(){
             }
         }
         else {
-//            if (scan_iter + 1 == 21){
-//                printf("before: %f  %f  %f\n", pose[0], pose[1], pose[2]);
-//                printf("pose guess = %f  %f  %f\n", pose_guess[0], pose_guess[1], pose_guess[2]);
-//            }
+
             FastMatch2(pose_guess, fastResolution);
+
             for (int i = 0; i < 3; i++){
                 pose[i] = FastMatchParameters.pose[i];
             }
-//            if (scan_iter + 1 == 21){
-//                printf("after: %f  %f  %f\n", pose[0], pose[1], pose[2]);
-//            }
+
+        }
+
+        if (scan_iter + 1 == 21){
+            printf("before pose: %f  %f  %f\n", pose[0], pose[1], pose[2]);
+            printf("pose guess = %f  %f  %f\n", pose_guess[0], pose_guess[1], pose_guess[2]); // pose guess is wrong
         }
 
         // Refine the pose using smaller pixels
         FastMatch2(pose, fastResolution2);
+
         for (int i = 0; i < 3; i++){
             pose[i] = FastMatchParameters.pose[i];
         }
 
+        if (scan_iter + 1 == 21){
+            printf("after pose: %f  %f  %f\n", pose[0], pose[1], pose[2]);
+        }
 
         // Execute a mini update, if robot has moved a certain distance
         float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
@@ -913,8 +930,8 @@ int main(){
 
 
 
-
-        printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
+//        if (scan_iter + 1 == 21)
+//            printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
         path[0][path_iter] = pose[0];
         path[1][path_iter] = pose[1];
         path[2][path_iter] = pose[2];
@@ -922,10 +939,10 @@ int main(){
     }
     fclose(fp);
 
-//    printf("\n\n\n\n");
-//    for (int i = 0; i < path_iter; i++){
-//        printf("path[%d] = %f  %f  %f\n" ,i+1, path[0][i], path[1][i], path[2][i]);
-//    }
+    printf("\n\n\n\n");
+    for (int i = 0; i < path_iter; i++){
+        printf("path[%d] = %f  %f  %f\n" ,i+1, path[0][i], path[1][i], path[2][i]);
+    }
 
     fp1 = fopen("C:/Users/lynth/Desktop/map_output.csv", "w");//create a file
     for (int j =0; j < map.size; j++){
