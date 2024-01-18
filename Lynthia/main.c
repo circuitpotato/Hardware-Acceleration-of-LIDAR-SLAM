@@ -377,8 +377,6 @@ typedef struct {
 } MyFastMatchParameters;
 MyFastMatchParameters FastMatchParameters;
 
-float hits_fastmatch[2500];
-
 void FastMatch(const float POSE[3], const float searchResolution[3]){
     // Grid Map Information
     float ipixel = 1/occ_grid.pixel_size;
@@ -512,14 +510,15 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                     //printf("ixy %d\n", ixy_index);
                     //float sum = 0;
                     for (int i4 = 0; i4 < ixy_index; i4++){
-                        hits_fastmatch[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
+                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
                     float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
-                        score = score + hits_fastmatch[i5];
+                        score = score + FastMatchParameters.bestHits[i5];
                     }
+                    FastMatchParameters.bestHits_size = ixy_index;
 //                    printf("score = %f\n", score);
 
                     // update
@@ -540,9 +539,9 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
 
                         bestScore = score;
-                        for (int q = 0; q < ixy_index; q++){
-                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
-                        }
+//                        for (int q = 0; q < ixy_index; q++){
+//                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
+//                        }
                         FastMatchParameters.bestHits_size = ixy_index;
 //                        printf("ixy index = %d\n", ixy_index);
                     }
@@ -713,14 +712,15 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
                     //printf("ixy %d\n", ixy_index);
                     for (int i4 = 0; i4 < ixy_index; i4++){
-                        hits_fastmatch[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
+                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
                     float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
-                        score = score + hits_fastmatch[i5];
+                        score = score + FastMatchParameters.bestHits[i5];
                     }
+                    FastMatchParameters.bestHits_size = ixy_index;
 //                    printf("score = %f\n", score);
 
                     // update
@@ -741,10 +741,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //                        }
 
                         bestScore = score;
-                        for (int q = 0; q < ixy_index; q++){
-                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
-                        }
-                        FastMatchParameters.bestHits_size = ixy_index;
+//                        for (int q = 0; q < ixy_index; q++){
+//                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
+//                        }
+//                        FastMatchParameters.bestHits_size = ixy_index;
 //                        printf("ixy index = %d\n", ixy_index);
                     }
 
@@ -783,9 +783,7 @@ void DiffPose(const float pose1[3], const float pose2[3], float dp[3]){
     dp[2] = pose2[2] - pose1[2];
 }
 
-void AddKeyScan(){
 
-}
 
 float path[3][row];
 FILE *fp;
@@ -823,7 +821,7 @@ int main(){
     float pose_guess[3];
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 100; scan_iter++){
+    for (scan_iter = 1; scan_iter < 1000; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
@@ -935,7 +933,7 @@ int main(){
     }
     end=clock();
     double t=(end-start)/CLOCKS_PER_SEC;
-    printf("time taken = %f\n", t); 
+    printf("time taken = %f\n", t);
 
     fclose(fp);
 
