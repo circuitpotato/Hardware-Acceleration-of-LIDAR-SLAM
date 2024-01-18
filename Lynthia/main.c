@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h> // For exit()
 #include <math.h>
+#include <time.h>
 #define row 3408
 #define column 1079
 
@@ -734,10 +735,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                         bestPose[1] = ty_temp;
                         bestPose[2] = theta_temp;
 
-                        if (scan_iter + 1 == 21 && searchResolution[0] == 0.05f) {
-//                            printf("bestPose FastMatch = %f  %f  %f\n", tx_temp, ty_temp, theta_temp);
-                            printf("score = %f\n", score);
-                        }
+//                        if (scan_iter + 1 == 21 && searchResolution[0] == 0.05f) {
+////                            printf("bestPose FastMatch = %f  %f  %f\n", tx_temp, ty_temp, theta_temp);
+//                            printf("score = %f\n", score);
+//                        }
 
                         bestScore = score;
                         for (int q = 0; q < ixy_index; q++){
@@ -791,6 +792,9 @@ FILE *fp;
 FILE *fp1;
 
 int main(){
+    double start,end;
+    start=clock();//predefined  function in c
+
 
     float pose[3] = {0,0,0};
     // Scan matching parameters
@@ -819,7 +823,7 @@ int main(){
     float pose_guess[3];
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 1000; scan_iter++){
+    for (scan_iter = 1; scan_iter < 100; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
@@ -876,11 +880,6 @@ int main(){
 
         }
 
-        if (scan_iter + 1 == 21){
-            printf("before pose: %f  %f  %f\n", pose[0], pose[1], pose[2]);
-            printf("pose guess = %f  %f  %f\n", pose_guess[0], pose_guess[1], pose_guess[2]); // pose guess is wrong
-        }
-
         // Refine the pose using smaller pixels
         FastMatch2(pose, fastResolution2);
 
@@ -888,13 +887,10 @@ int main(){
             pose[i] = FastMatchParameters.pose[i];
         }
 
-        if (scan_iter + 1 == 21){
-            printf("after pose: %f  %f  %f\n", pose[0], pose[1], pose[2]);
-        }
-
         // Execute a mini update, if robot has moved a certain distance
-        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
+//        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
         float dp[3];    // output pose of mini update
+
         DiffPose(map.pose, pose, dp);
         for (int i = 0; i < 3; i++){
             dp[i]=fabsf(dp[i]);
@@ -937,12 +933,16 @@ int main(){
         path[2][path_iter] = pose[2];
         path_iter++;
     }
+    end=clock();
+    double t=(end-start)/CLOCKS_PER_SEC;
+    printf("time taken = %f\n", t); 
+
     fclose(fp);
 
-    printf("\n\n\n\n");
-    for (int i = 0; i < path_iter; i++){
-        printf("path[%d] = %f  %f  %f\n" ,i+1, path[0][i], path[1][i], path[2][i]);
-    }
+//    printf("\n\n\n\n");
+//    for (int i = 0; i < path_iter; i++){
+//        printf("path[%d] = %f  %f  %f\n" ,i+1, path[0][i], path[1][i], path[2][i]);
+//    }
 
     fp1 = fopen("C:/Users/lynth/Desktop/map_output.csv", "w");//create a file
     for (int j =0; j < map.size; j++){
