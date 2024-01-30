@@ -135,8 +135,8 @@ typedef struct {
     float y[30000];
     int size;
 
-    float newPoints_x[row*4];
-    float newPoints_y[row*4];
+    float newPoints_x[row];
+    float newPoints_y[row];
     int newPointsSize;
     float pose[3];
 } MapPoints;
@@ -384,8 +384,8 @@ float S_x[row];
 float S_y[row];
 float Sx[row];
 float Sy[row];
-float ix[row];
-float iy[row];
+//float ix[row];
+//float iy[row];
 
 
 typedef struct {
@@ -510,9 +510,9 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
                         if ((Sx[i3] > 1.0) && (Sy[i3] > 1.0) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
-                            ix[ixy_index] = Sx[i3];   // ix
-                            iy[ixy_index] = Sy[i3];   // iy
-
+//                            ix[ixy_index] = Sx[i3];   // ix
+//                            iy[ixy_index] = Sy[i3];   // iy
+                            FastMatchParameters.bestHits[ixy_index] = occ_grid.metric_grid[(int)Sy[i3] - 1][(int)Sx[i3] - 1];
                             //printf("iy[%d] = %f\n", ixy_index, S_y[ixy_index]);
                             ixy_index++;
                         }
@@ -530,16 +530,16 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
                     //printf("ixy %d\n", ixy_index);
                     //float sum = 0;
-                    for (int i4 = 0; i4 < ixy_index; i4++){
-                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
-                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
-                    }
+//                    for (int i4 = 0; i4 < ixy_index; i4++){
+//                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
+//                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
+//                    }
 
                     float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
                         score = score + FastMatchParameters.bestHits[i5];
                     }
-                    FastMatchParameters.bestHits_size = ixy_index;
+//                    FastMatchParameters.bestHits_size = ixy_index;
 //                    printf("score = %f\n", score);
 
                     // update
@@ -706,10 +706,11 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
                         if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
-                            ix[ixy_index] = Sx[i3];   // ix
-                            iy[ixy_index] = Sy[i3];   // iy
+//                            ix[ixy_index] = Sx[i3];   // ix
+//                            iy[ixy_index] = Sy[i3];   // iy
 
                             //printf("iy[%d] = %f\n", ixy_index, S_y[ixy_index]);
+                            FastMatchParameters.bestHits[ixy_index] = occ_grid.metric_grid2[(int)Sy[i3] - 1][(int)Sx[i3] - 1];
                             ixy_index++;
                         }
                         //printf("ix[%d] = %f\n", i3, S_x[i3]);
@@ -724,11 +725,11 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //                    }
 
 
-                    //printf("ixy %d\n", ixy_index);
-                    for (int i4 = 0; i4 < ixy_index; i4++){
-                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
-                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
-                    }
+//                    //printf("ixy %d\n", ixy_index);
+//                    for (int i4 = 0; i4 < ixy_index; i4++){
+//                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
+//                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
+//                    }
 
                     float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
@@ -902,7 +903,7 @@ int main(){
         }
 
         // Execute a mini update, if robot has moved a certain distance
-        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
+//        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
 //        float dp[3];    // output pose of mini update
 
         DiffPose(map.pose, pose, dp);
