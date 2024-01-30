@@ -1,9 +1,9 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h> // For exit()
-#include <math.h> 
+#include <math.h>
 #include <time.h>
-#define row 3408 
+#define row 3408
 #define column 1079
 
 // reads raw data
@@ -76,18 +76,18 @@ typedef struct {
 
 ScanData scan;
 
-void readAScan(const float lidar_range_min, const float lidar_angles[column], const float lidar_range_max,  const int usableRange){
-    float maxRange = (lidar_range_max < (float)usableRange) ? lidar_range_max : (float)usableRange;
+void readAScan(const int usableRange){
+    float maxRange = (lidar.range_max < (float)usableRange) ? lidar.range_max : (float)usableRange;
     int valid_points = 0;
 
     for (int i = 0; i < column; i++){
-        if ((test_input_memory[i] < lidar_range_min) | (test_input_memory[i] > maxRange)){
+        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
             continue;   // skip if range is bad
         }
         else{
             float cartesian_x, cartesian_y;
-            cartesian_x = test_input_memory[i] * cosf(lidar_angles[i]);
-            cartesian_y = test_input_memory[i] * sinf(lidar_angles[i]);
+            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
             scan.x[valid_points] = cartesian_x;
             scan.y[valid_points] = cartesian_y;
             valid_points++;
@@ -95,7 +95,6 @@ void readAScan(const float lidar_range_min, const float lidar_angles[column], co
     }
     scan.size = valid_points;
 }
-
 
 
 void Transform(const float POSE[3]){
@@ -812,7 +811,7 @@ int main(){
     openFileValidity(fp);     // check if file can be open
     readDatasetLineByLine(fp);  // read 1st line of code (scan 0)
     SetLidarParameters();   // declare lidar parameters since there is no actual lidar
-    readAScan(lidar.range_min, lidar.angles, lidar.range_max, 24);
+    readAScan(24);
 
     Transform(pose);
     Initialise(pose);  // initialise map
@@ -829,7 +828,7 @@ int main(){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
-        readAScan(lidar.range_min, lidar.angles, lidar.range_max, 24);
+        readAScan(24);
         scan_transform_flag = 0;
         if (miniUpdated == 1) {
 //            printf("update\n");
