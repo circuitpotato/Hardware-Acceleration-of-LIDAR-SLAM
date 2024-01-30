@@ -3,7 +3,7 @@
 #include <stdlib.h> // For exit()
 #include <math.h>
 #include <time.h>
-#define row 3408
+#define row 3408 
 #define column 1079
 
 // reads raw data
