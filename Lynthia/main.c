@@ -68,6 +68,8 @@ void SetLidarParameters() {
 typedef struct {
     float x[row];
     float y[row];
+    float tx[row];
+    float ty[row];
     int size;
 } ScanData;
 
@@ -111,8 +113,8 @@ void Transform(const float POSE[3]){
         float transformed_y = (float)(R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
 
         // Translate to points on world frame
-        scan.x[i] = transformed_x + tx;
-        scan.y[i] = transformed_y + ty;
+        scan.tx[i] = transformed_x + tx;
+        scan.ty[i] = transformed_y + ty;
     }
 }
 
@@ -134,8 +136,8 @@ MapPoints map;
 
 void Initialise(const float POSE[3]){
     for (int i = 0; i < scan.size; i++){
-        map.x[i] = scan.x[i];
-        map.y[i] = scan.y[i];
+        map.x[i] = scan.tx[i];
+        map.y[i] = scan.ty[i];
     }
     map.size = scan.size;
     map.pose[0] = POSE[0];
@@ -152,23 +154,23 @@ typedef struct{
 myLocalMap local_map;
 
 void ExtractLocalMap(const float BORDERSIZE){
-    float minX = scan.x[0];
-    float minY = scan.y[0];
-    float maxX = scan.x[0];
-    float maxY = scan.y[0];
+    float minX = scan.tx[0];
+    float minY = scan.ty[0];
+    float maxX = scan.tx[0];
+    float maxY = scan.ty[0];
 
     for (int i = 1; i < scan.size; i++) {
-        if (scan.x[i] < minX) {
-            minX = scan.x[i];
+        if (scan.tx[i] < minX) {
+            minX = scan.tx[i];
         }
-        if (scan.x[i] > maxX) {
-            maxX = scan.x[i];
+        if (scan.tx[i] > maxX) {
+            maxX = scan.tx[i];
         }
-        if (scan.y[i] < minY) {
-            minY = scan.y[i];
+        if (scan.ty[i] < minY) {
+            minY = scan.ty[i];
         }
-        if (scan.y[i] > maxY) {
-            maxY = scan.y[i];
+        if (scan.ty[i] > maxY) {
+            maxY = scan.ty[i];
         }
     }
 
@@ -811,7 +813,7 @@ int main(){
 
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 300; scan_iter++){
+    for (scan_iter = 1; scan_iter < 2500; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
@@ -820,7 +822,7 @@ int main(){
         if (miniUpdated == 1) {
 //            printf("update\n");
             Transform(pose);
-            scan_transform_flag = 1;
+//            scan_transform_flag = 1;
             ExtractLocalMap(borderSize);
             OccupationalGrid(pixelSize, pixelSize2);
         }
@@ -876,7 +878,7 @@ int main(){
         }
 
         // Execute a mini update, if robot has moved a certain distance
-//        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
+        float forced_pose[3] = {0,0,0};     // self insert 0,0,0 until scan 44 (edit later)
 //        float dp[3];    // output pose of mini update
 
         DiffPose(map.pose, pose, dp);
@@ -886,22 +888,21 @@ int main(){
 
         if (dp[0] > miniUpdateDT || dp[1] > miniUpdateDT || dp[2] > miniUpdateDR){
             miniUpdated = 1;
-            if(scan_transform_flag == 0){
-                Transform(pose);
-            }
+            Transform(pose);
+
 
             int newPointSize = 0;
             for (int j = 0; j < FastMatchParameters.bestHits_size; j++){
                 if (FastMatchParameters.bestHits[j] > 1.5){
-                    map.x[map.size + newPointSize] = scan.x[j];
-                    map.y[map.size + newPointSize] = scan.y[j];
+                    map.x[map.size + newPointSize] = scan.tx[j];
+                    map.y[map.size + newPointSize] = scan.ty[j];
                     newPointSize++;
                 }
             }
 
-            if (newPointSize == 0){
-                break;
-            }
+//            if (newPointSize == 0){
+//                break;
+//            }
             map.size = map.size + newPointSize;
             map.pose[0] = pose[0];
             map.pose[1] = pose[1];
@@ -913,9 +914,8 @@ int main(){
         }
 
 
-
 //        if (scan_iter + 1 == 21)
-//            printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
+            printf("pose = %f  %f  %f\n", pose[0], pose[1], pose[2]);
         path[0][path_iter] = pose[0];
         path[1][path_iter] = pose[1];
         path[2][path_iter] = pose[2];
