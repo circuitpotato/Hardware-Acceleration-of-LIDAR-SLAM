@@ -93,6 +93,9 @@ void readAScan(const int usableRange){
             valid_points++;
         }
     }
+
+
+
     scan.size = valid_points;
 }
 
@@ -417,8 +420,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
     float theta_temp;
     float tx_temp;
     float ty_temp;
-
-    float score;
+    int ixy_index;
 
     // get pixelscan
     for (int a = 0; a < scan.size; a++){
@@ -496,7 +498,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
-                    int ixy_index =0;
+                    ixy_index = 0;
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
@@ -526,7 +528,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
-                    score = 0;
+                    float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
                         score = score + FastMatchParameters.bestHits[i5];
                     }
@@ -554,7 +556,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 //                        for (int q = 0; q < ixy_index; q++){
 //                            FastMatchParameters.bestHits[q] = hits_fastmatch[q];
 //                        }
-                        FastMatchParameters.bestHits_size = ixy_index;
+
 //                        printf("ixy index = %d\n", ixy_index);
                     }
 
@@ -582,7 +584,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
     FastMatchParameters.pose[0] = bestPose[0];
     FastMatchParameters.pose[1] = bestPose[1];
     FastMatchParameters.pose[2] = bestPose[2];
-
+    FastMatchParameters.bestHits_size = ixy_index;
 }
 
 void FastMatch2(const float POSE[3], const float searchResolution[3]){
@@ -616,7 +618,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
     float theta_temp;
     float tx_temp;
     float ty_temp;
-    float score;
+    int ixy_index;
 
     // get pixelscan
     for (int a = 0; a < scan.size; a++){
@@ -692,7 +694,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
-                    int ixy_index =0;
+                    ixy_index = 0;
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
@@ -721,11 +723,11 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                         //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
                     }
 
-                    score = 0;
+                    float score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
                         score = score + FastMatchParameters.bestHits[i5];
                     }
-                    FastMatchParameters.bestHits_size = ixy_index;
+
 //                    printf("score = %f\n", score);
 
                     // update
@@ -777,7 +779,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
     FastMatchParameters.pose[0] = bestPose[0];
     FastMatchParameters.pose[1] = bestPose[1];
     FastMatchParameters.pose[2] = bestPose[2];
-
+    FastMatchParameters.bestHits_size = ixy_index;
 }
 
 
