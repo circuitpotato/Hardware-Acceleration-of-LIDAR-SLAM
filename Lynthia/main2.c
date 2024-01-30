@@ -1,7 +1,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h> // For exit()
-#include <math.h>
+#include <math.h> 
 #include <time.h>
 #define row 3408 
 #define column 1079
