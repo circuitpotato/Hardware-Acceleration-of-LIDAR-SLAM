@@ -471,8 +471,9 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 //                printf("tx[%d] = %f\n", tx_index, tx[tx_index]);
 
                 // get Sx
+                float Sx_temp = (tx_temp - minX)*ipixel;
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + (tx_temp - minX)*ipixel) + 1;
+                    Sx[i] = roundf(S_x[i] + Sx_temp) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -489,8 +490,9 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                     }
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
+                    float Sy_temp = (ty_temp - minY)*ipixel;
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + (ty_temp - minY)*ipixel) + 1;
+                        Sy[i2] = roundf(S_y[i2] + Sy_temp) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
@@ -665,8 +667,9 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //                printf("tx[%d] = %f\n", tx_index, tx[tx_index]);
 
                 // get Sx
+                float Sx_temp = (tx_temp - minX)*ipixel;
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + (tx_temp - minX)*ipixel) + 1;
+                    Sx[i] = roundf(S_x[i] + Sx_temp) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -683,8 +686,9 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                     }
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
+                    float Sy_temp = (ty_temp - minY)*ipixel;
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + (ty_temp - minY)*ipixel) + 1;
+                        Sy[i2] = roundf(S_y[i2] + Sy_temp) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
