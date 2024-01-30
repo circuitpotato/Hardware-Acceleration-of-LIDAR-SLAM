@@ -80,22 +80,29 @@ void readAScan(const int usableRange){
     float maxRange = (lidar.range_max < (float)usableRange) ? lidar.range_max : (float)usableRange;
     int valid_points = 0;
 
+//    for (int i = 0; i < column; i++){
+//        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
+//            continue;   // skip if range is bad
+//        }
+//        else{
+//            float cartesian_x, cartesian_y;
+//            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+//            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
+//            scan.x[valid_points] = cartesian_x;
+//            scan.y[valid_points] = cartesian_y;
+//            valid_points++;
+//        }
+//    }
     for (int i = 0; i < column; i++){
-        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
-            continue;   // skip if range is bad
-        }
-        else{
-            float cartesian_x, cartesian_y;
-            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
-            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
-            scan.x[valid_points] = cartesian_x;
-            scan.y[valid_points] = cartesian_y;
+        if ((test_input_memory[i] >= lidar.range_min) && (test_input_memory[i] <= maxRange)){
+//            float cartesian_x, cartesian_y;
+//            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+//            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
+            scan.x[valid_points] = test_input_memory[i] * cosf(lidar.angles[i]);
+            scan.y[valid_points] = test_input_memory[i] * sinf(lidar.angles[i]);
             valid_points++;
         }
     }
-
-
-
     scan.size = valid_points;
 }
 
@@ -211,10 +218,10 @@ typedef struct {
 } MyGrid;
 MyGrid occ_grid;
 
-// Helper function to calculate the Euclidean distance
-float euclidean_distance(int x1, int y1, int x2, int y2) {
-    return (float)sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
-}
+//// Helper function to calculate the Euclidean distance
+//float euclidean_distance(int x1, int y1, int x2, int y2) {
+//    return (float)sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+//}
 
 // Function to compute Euclidean distance transform
 void euclidean_distance_transform(const int width, const int height) {
