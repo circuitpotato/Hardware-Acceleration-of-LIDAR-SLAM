@@ -839,7 +839,7 @@ int main(){
 
     miniUpdated = 1;
     int path_iter = 1;
-    for (scan_iter = 1; scan_iter < 2500; scan_iter++){
+    for (scan_iter = 1; scan_iter < 3000; scan_iter++){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
