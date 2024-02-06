@@ -703,6 +703,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
                     ixy_index = 0;
                     //printf("ixy %d\n", ixy_index);
+
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
                         if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
