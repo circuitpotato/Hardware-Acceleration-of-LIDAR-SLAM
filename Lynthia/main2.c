@@ -19,25 +19,51 @@ void openFileValidity(FILE* fp){
     }
 }
 
-void readDatasetLineByLine(FILE *filename){
-    // Read float values from file
-    float value;
+//void readDatasetLineByLine(FILE *filename){
+//    // Read float values from file
+//    float value;
+//
+////    if (fscanf(filename, "%f,", &value) != 1) {
+////        printf("Failed to read float value %d from the file.\n", 1);
+////        fclose(filename);
+////        exit(1);
+////    }
+//    fscanf(filename, "%f,", &value);
+//    test_input_memory[0] = value;
+//    for (int k = 1; k < column; k++){
+//        fscanf(filename, "%f,", &value);
+////        if (fscanf(filename, "%f,", &value) != 1) {
+////            printf("Failed to read float value %d from the file.\n", k + 1);
+////            fclose(filename);
+////            exit(1);
+////        }
+//        test_input_memory[k] = value;
+//    }
+//}
 
-    if (fscanf(filename, "%f,", &value) != 1) {
-        printf("Failed to read float value %d from the file.\n", 1);
-        fclose(filename);
-        exit(1);
-    }
-    test_input_memory[0] = value;
-    for (int k = 1; k < column; k++){
-        if (fscanf(filename, "%f,", &value) != 1) {
-            printf("Failed to read float value %d from the file.\n", k + 1);
-            fclose(filename);
-            exit(1);
-        }
+void readDatasetLineByLine(FILE *filename) {
+    float value;
+//    int result;
+
+    for (int k = 0; k < column; k++) {
+        fscanf(filename, "%f,", &value);
+
+//        if (result != 1) {
+//            if (result == EOF) {
+//                printf("End of file reached prematurely. Expected %d values, got %d.\n", column, k);
+//            } else {
+//                printf("Failed to read float value %d from the file.\n", k + 1);
+//            }
+//
+//            fclose(filename);
+//            exit(1);
+//        }
+
         test_input_memory[k] = value;
     }
 }
+
+
 
 typedef struct {
     float angle_min;
@@ -52,10 +78,10 @@ LidarParameters lidar;
 
 void SetLidarParameters() {
 
-    lidar.angle_min = (float)-2.351831;
-    lidar.angle_max = (float)2.351831;
-    lidar.angle_increment = (float)0.004363;
-    lidar.range_min = (float)0.023;
+    lidar.angle_min = -2.351831f;
+    lidar.angle_max = 2.351831f;
+    lidar.angle_increment = 0.004363f;
+    lidar.range_min = 0.023f;
     lidar.range_max = 60;
 
     float angle = lidar.angle_min;
@@ -109,8 +135,8 @@ void Transform(const float POSE[3]){
     for (int i = 0; i < scan.size; i++){
         // multiply scan(x,y) by transformed R
         // scan is (N,2) matrix and R is (2,2) matrix
-        float transformed_x = (float)(R[0][0] * scan.x[i] + R[1][0] * scan.y[i]);
-        float transformed_y = (float)(R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
+        float transformed_x = (R[0][0] * scan.x[i] + R[1][0] * scan.y[i]);
+        float transformed_y = (R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
 
         // Translate to points on world frame
         scan.tx[i] = transformed_x + tx;
@@ -126,8 +152,8 @@ typedef struct {
     float y[30000];
     int size;
 
-    float newPoints_x[row*4];
-    float newPoints_y[row*4];
+    float newPoints_x[row];
+    float newPoints_y[row];
     int newPointsSize;
     float pose[3];
 } MapPoints;
@@ -336,8 +362,8 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
         hits2[0] = (int)roundf(x_minus_minX2 / PIXELSIZE2) + 1;
         hits2[1] = (int)roundf(y_minus_minY2 / PIXELSIZE2) + 1;
 
-        idx_occGrid[a] = (int)( ((float)(hits[1] - 1) * (float)Sgrid[0]) + (float)hits[0] ) - 1;
-        idx_occGrid2[a] = (int)( ((float)(hits2[1] - 1) * (float)Sgrid2[0]) + (float)hits2[0] ) - 1;
+        idx_occGrid[a] = ( ((hits[1] - 1) * Sgrid[0]) + hits[0] ) - 1;
+        idx_occGrid2[a] = ( ((hits2[1] - 1) * Sgrid2[0]) + hits2[0] ) - 1;
 
         idx_row = idx_occGrid[a] / Sgrid[0];
         idx_col = idx_occGrid[a] % Sgrid[0];
@@ -816,8 +842,8 @@ int main(){
 
     float pose[3] = {0,0,0};
     // Scan matching parameters
-    float fastResolution[3] = {(float)0.05, (float)0.05, 0.008727f}; // [m; m; M_PI * 0.5 / 180]
-    float fastResolution2[3] = {(float)0.025, (float)0.025, 0.004363f}; // [m; m; (M_PI * 0.5 / 180)/2]
+    float fastResolution[3] = {0.05f, 0.05f, 0.008727f}; // [m; m; M_PI * 0.5 / 180]
+    float fastResolution2[3] = {0.025f, 0.025f, 0.004363f}; // [m; m; (M_PI * 0.5 / 180)/2]
     float borderSize = 1;
     float pixelSize = 0.2f;
     float pixelSize2 = 0.1f;
