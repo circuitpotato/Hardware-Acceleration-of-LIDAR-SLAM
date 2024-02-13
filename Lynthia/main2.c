@@ -81,11 +81,19 @@ void readAScan(const int usableRange){
     int valid_points = 0;
 
     for (int i = 0; i < column; i++){
-        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
-            continue;   // skip if range is bad
-        }
-        else{
-//            float cartesian_x, cartesian_y;
+//        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
+//            continue;   // skip if range is bad
+//        }
+//        else{
+////            float cartesian_x, cartesian_y;
+//            float cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+//            float cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
+//            scan.x[valid_points] = cartesian_x;
+//            scan.y[valid_points] = cartesian_y;
+//            valid_points++;
+//        }
+
+        if ((test_input_memory[i] >= lidar.range_min) && (test_input_memory[i] <= maxRange)){
             float cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
             float cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
             scan.x[valid_points] = cartesian_x;
@@ -104,13 +112,13 @@ void Transform(const float POSE[3]){
     float theta = POSE[2];
     float ct = cosf(theta);
     float st = sinf(theta);
-    float R[2][2] = {{ct, -st}, {st,ct}};
+//    float R[2][2] = {{ct, -st}, {st,ct}};
 
     for (int i = 0; i < scan.size; i++){
         // multiply scan(x,y) by transformed R
         // scan is (N,2) matrix and R is (2,2) matrix
-        float transformed_x = (R[0][0] * scan.x[i] + R[1][0] * scan.y[i]);
-        float transformed_y = (R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
+        float transformed_x = (ct * scan.x[i] + st * scan.y[i]);
+        float transformed_y = (-st * scan.x[i] + ct * scan.y[i]);
 
         // Translate to points on world frame
         scan.tx[i] = transformed_x + tx;
@@ -221,15 +229,13 @@ void euclidean_distance_transform(const int width, const int height) {
     float MAX_DIST = 10;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            if (occ_grid.grid[y][x] != 0) {
+            if (occ_grid.grid[y][x]) {
                 occ_grid.metric_grid[y][x] = 0;
             } else {
                 float min_dist = MAX_DIST;
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
-                        if (occ_grid.grid[j][i] != 0) {
-                            int x_minus_i = x - i;
-                            int y_minus_j = y - j;
+                        if (occ_grid.grid[j][i]) {
 //                            float dist_square = (x_minus_i*x_minus_i) + (y_minus_j*y_minus_j);
                             float dist_square = (float)euclidean_distance_square(x, y, i, j);
                             if (dist_square < min_dist * min_dist) {
@@ -248,13 +254,13 @@ void euclidean_distance_transform2(const int width, const int height) {
     float MAX_DIST = 10;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
-            if (occ_grid.grid2[y][x] != 0) {
+            if (occ_grid.grid2[y][x]) {
                 occ_grid.metric_grid2[y][x] = 0;
             } else {
                 float min_dist = MAX_DIST;
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
-                        if (occ_grid.grid2[j][i] != 0) {
+                        if (occ_grid.grid2[j][i]) {
                             float dist_square = (float)euclidean_distance_square(x, y, i, j);
                             if (dist_square < min_dist * min_dist) {
                                 min_dist = sqrtf(dist_square);
@@ -338,8 +344,6 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
     int idx_row2;
     int idx_col2;
 
-    float invPixelSize = 1.0f / PIXELSIZE;
-    float invPixelSize2 = 1.0f / PIXELSIZE2;
 
     for (int a = 0; a < local_map.size; a++){
         x_minus_minX = local_map.x[a] - minXY[0];
@@ -574,7 +578,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
         }
 
         // No better match was found, increase resolution
-        if (noChange == 1){
+        if (noChange){
 //            r/=2;
 //            printf("r = %f\n", r);
 //            t/=2;
@@ -771,7 +775,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
         }
 
         // No better match was found, increase resolution
-        if (noChange == 1){
+        if (noChange){
 //            r/=2;
 //            printf("r = %f\n", r);
 //            t/=2;
@@ -849,7 +853,7 @@ int main(){
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
         readAScan(24);
         scan_transform_flag = 0;
-        if (miniUpdated == 1) {
+        if (miniUpdated) {
 //            printf("update\n");
             Transform(pose);
             scan_transform_flag = 1;
