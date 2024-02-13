@@ -76,18 +76,18 @@ typedef struct {
 
 ScanData scan;
 
-void readAScan(const float lidar_range_min, const float lidar_angles[column], const float lidar_range_max,  const int usableRange){
-    float maxRange = (lidar_range_max < (float)usableRange) ? lidar_range_max : (float)usableRange;
+void readAScan(const int usableRange){
+    float maxRange = (lidar.range_max < (float)usableRange) ? lidar.range_max : (float)usableRange;
     int valid_points = 0;
 
     for (int i = 0; i < column; i++){
-        if ((test_input_memory[i] < lidar_range_min) | (test_input_memory[i] > maxRange)){
+        if ((test_input_memory[i] < lidar.range_min) | (test_input_memory[i] > maxRange)){
             continue;   // skip if range is bad
         }
         else{
             float cartesian_x, cartesian_y;
-            cartesian_x = test_input_memory[i] * cosf(lidar_angles[i]);
-            cartesian_y = test_input_memory[i] * sinf(lidar_angles[i]);
+            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
             scan.x[valid_points] = cartesian_x;
             scan.y[valid_points] = cartesian_y;
             valid_points++;
@@ -502,7 +502,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
-                        if ((Sx[i3] > 1.0) && (Sy[i3] > 1.0) && (Sx[i3] < nCols) && (Sy[i3] < nRows)) {
+                        if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < nCols) && (Sy[i3] < nRows)) {
 //                            ix[ixy_index] = Sx[i3];   // ix
 //                            iy[ixy_index] = Sy[i3];   // iy
                             FastMatchParameters.bestHits[ixy_index] = occ_grid.metric_grid[Sy[i3] - 1][Sx[i3] - 1];
@@ -570,7 +570,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 //            printf("r = %f\n", r);
 //            t/=2;
 //            printf("t = %f\n", t);
-            depth = depth + 1;
+            depth++;
 //            printf("depth = %d\n", depth);
             if (depth > maxDepth){
                 break;
@@ -778,7 +778,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //            printf("r = %f\n", r);
 //            t/=2;
 //            printf("t = %f\n", t);
-            depth = depth + 1;
+            depth++;
 //            printf("depth = %d\n", depth);
             if (depth > maxDepth){
                 break;
@@ -830,7 +830,7 @@ int main(){
     openFileValidity(fp);     // check if file can be open
     readDatasetLineByLine(fp);  // read 1st line of code (scan 0)
     SetLidarParameters();   // declare lidar parameters since there is no actual lidar
-    readAScan(lidar.range_min, lidar.angles, lidar.range_max, 24);
+    readAScan(24);
 
     Transform(pose);
     Initialise(pose);  // initialise map
@@ -847,7 +847,7 @@ int main(){
         printf("scan %d\n", scan_iter+1);
 
         readDatasetLineByLine(fp);  // read current line of code starting from scan 1
-        readAScan(lidar.range_min, lidar.angles, lidar.range_max, 24);
+        readAScan(24);
         scan_transform_flag = 0;
         if (miniUpdated == 1) {
 //            printf("update\n");
@@ -918,7 +918,7 @@ int main(){
 
         if (dp[0] > miniUpdateDT || dp[1] > miniUpdateDT || dp[2] > miniUpdateDR){
             miniUpdated = 1;
-            if (scan_transform_flag == 0){
+            if (!scan_transform_flag){
                 Transform(pose);
             }
 
