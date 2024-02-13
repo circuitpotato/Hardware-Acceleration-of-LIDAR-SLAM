@@ -363,10 +363,8 @@ float pixelScan_x[row];
 float pixelScan_y[row];
 float S_x[row];
 float S_y[row];
-float Sx[row];
-float Sy[row];
-float ix[row];
-float iy[row];
+int Sx[row];
+int Sy[row];
 
 
 typedef struct {
@@ -478,7 +476,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
                 // get Sx
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + Sx_temp[tx_index]) + 1;
+                    Sx[i] = (int)roundf(S_x[i] + Sx_temp[tx_index]) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -496,7 +494,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
+                        Sy[i2] = (int)roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
@@ -504,10 +502,10 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
-                        if ((Sx[i3] > 1.0) && (Sy[i3] > 1.0) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
-                            ix[ixy_index] = Sx[i3];   // ix
-                            iy[ixy_index] = Sy[i3];   // iy
-
+                        if ((Sx[i3] > 1.0) && (Sy[i3] > 1.0) && (Sx[i3] < nCols) && (Sy[i3] < nRows)) {
+//                            ix[ixy_index] = Sx[i3];   // ix
+//                            iy[ixy_index] = Sy[i3];   // iy
+                            FastMatchParameters.bestHits[ixy_index] = occ_grid.metric_grid[Sy[i3] - 1][Sx[i3] - 1];
                             //printf("iy[%d] = %f\n", ixy_index, S_y[ixy_index]);
                             ixy_index++;
                         }
@@ -525,10 +523,10 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
                     //printf("ixy %d\n", ixy_index);
                     //float sum = 0;
-                    for (int i4 = 0; i4 < ixy_index; i4++){
-                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
-                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
-                    }
+//                    for (int i4 = 0; i4 < ixy_index; i4++){
+//                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid[(int)iy[i4] - 1][(int)ix[i4] - 1];
+//                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
+//                    }
 
                     score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
@@ -687,7 +685,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
                 // get Sx
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + Sx_temp[tx_index]) + 1;
+                    Sx[i] = (int)roundf(S_x[i] + Sx_temp[tx_index]) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -705,7 +703,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
+                        Sy[i2] = (int)roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
@@ -713,10 +711,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
                     //printf("ixy %d\n", ixy_index);
                     for (int i3 = 0; i3 < scan.size; i3 ++){
                         // IsIn = 1
-                        if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < (float)nCols) && (Sy[i3] < (float)nRows)) {
-                            ix[ixy_index] = Sx[i3];   // ix
-                            iy[ixy_index] = Sy[i3];   // iy
-
+                        if ((Sx[i3] > 1) && (Sy[i3] > 1) && (Sx[i3] < nCols) && (Sy[i3] < nRows)) {
+//                            ix[ixy_index] = Sx[i3];   // ix
+//                            iy[ixy_index] = Sy[i3];   // iy
+                            FastMatchParameters.bestHits[ixy_index] = occ_grid.metric_grid2[Sy[i3] - 1][Sx[i3] - 1];
                             //printf("iy[%d] = %f\n", ixy_index, S_y[ixy_index]);
                             ixy_index++;
                         }
@@ -733,10 +731,10 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
 
                     //printf("ixy %d\n", ixy_index);
-                    for (int i4 = 0; i4 < ixy_index; i4++){
-                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
-                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
-                    }
+//                    for (int i4 = 0; i4 < ixy_index; i4++){
+//                        FastMatchParameters.bestHits[i4] = occ_grid.metric_grid2[(int)iy[i4] - 1][(int)ix[i4] - 1];
+//                        //printf("hits[%d] = %d\n", i4, (int)hits[i4]);
+//                    }
 
                     score = 0;
                     for (int i5 = 0; i5 < ixy_index; i5++){
