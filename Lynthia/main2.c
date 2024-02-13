@@ -210,12 +210,14 @@ typedef struct {
 MyGrid occ_grid;
 
 // Helper function to calculate the Euclidean distance
-float euclidean_distance(int x1, int y1, int x2, int y2) {
-    return (float)sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
+int euclidean_distance_square(const int x1, const int y1, const int x2, const int y2) {
+    int x_temp = x1 - x2;
+    int y_temp = y1 - y2;
+    return x_temp*x_temp + y_temp*y_temp;
 }
 
 // Function to compute Euclidean distance transform
-void euclidean_distance_transform(int input[200][200], float output[200][200], int width, int height) {
+void euclidean_distance_transform(const int input[200][200], float output[200][200], const int width, const int height) {
     float MAX_DIST = 10;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -226,9 +228,9 @@ void euclidean_distance_transform(int input[200][200], float output[200][200], i
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
                         if (input[j][i]) {
-                            float dist = euclidean_distance(x, y, i, j);
-                            if (dist < min_dist) {
-                                min_dist = dist;
+                            int dist_square = euclidean_distance_square(x, y, i, j);
+                            if ((float)dist_square < min_dist * min_dist) {
+                                min_dist = sqrtf((float)dist_square);
                             }
                         }
                     }
@@ -239,7 +241,7 @@ void euclidean_distance_transform(int input[200][200], float output[200][200], i
     }
 }
 
-void euclidean_distance_transform2(int input[400][400], float output[400][400], int width, int height) {
+void euclidean_distance_transform2(const int input[400][400], float output[400][400], const int width, const int height) {
     float MAX_DIST = 10;
     for (int y = 0; y < height; ++y) {
         for (int x = 0; x < width; ++x) {
@@ -250,9 +252,9 @@ void euclidean_distance_transform2(int input[400][400], float output[400][400], 
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
                         if (input[j][i]) {
-                            float dist = euclidean_distance(x, y, i, j);
-                            if (dist < min_dist) {
-                                min_dist = dist;
+                            int dist_square = euclidean_distance_square(x, y, i, j);
+                            if ((float)dist_square < min_dist * min_dist) {
+                                min_dist = sqrtf((float)dist_square);
                             }
                         }
                     }
@@ -423,9 +425,14 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
     float ct[3];
     float st[3];
+    float Sx_temp[3];
+    float Sy_temp[3];
+
     for (int i = 0; i < 3; i++){
         ct[i] = cosf(theta[i]);
         st[i] = sinf(theta[i]);
+        Sx_temp[i] = (tx[i] - minX)*ipixel;
+        Sy_temp[i] = (ty[i] - minY)*ipixel;
     }
 
     while (iter < maxIter){
@@ -471,7 +478,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 
                 // get Sx
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + (tx[tx_index] - minX)*ipixel) + 1;
+                    Sx[i] = roundf(S_x[i] + Sx_temp[tx_index]) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -489,7 +496,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + (ty[ty_index] - minY)*ipixel) + 1;
+                        Sy[i2] = roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
@@ -629,9 +636,14 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
     float ct[3];
     float st[3];
+    float Sx_temp[3];
+    float Sy_temp[3];
+
     for (int i = 0; i < 3; i++){
         ct[i] = cosf(theta[i]);
         st[i] = sinf(theta[i]);
+        Sx_temp[i] = (tx[i] - minX)*ipixel;
+        Sy_temp[i] = (ty[i] - minY)*ipixel;
     }
 
     while (iter < maxIter){
@@ -675,7 +687,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 
                 // get Sx
                 for (int i = 0; i < scan.size; i++){
-                    Sx[i] = roundf(S_x[i] + (tx[tx_index] - minX)*ipixel) + 1;
+                    Sx[i] = roundf(S_x[i] + Sx_temp[tx_index]) + 1;
                     //printf("Sx[%d] = %d\n", i, (int)Sx[i]);
                 }
 
@@ -693,7 +705,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
 //                    printf("ty[%d] = %f\n", ty_index, ty[ty_index]);
                     // get Sy
                     for (int i2 = 0; i2 < scan.size; i2++){
-                        Sy[i2] = roundf(S_y[i2] + (ty[ty_index] - minY)*ipixel) + 1;
+                        Sy[i2] = roundf(S_y[i2] + Sy_temp[ty_index]) + 1;
                         //printf("Sy[%d] = %d\n", i2, (int)Sy[i2]);
                     }
 
