@@ -111,11 +111,15 @@ void readAScan(const int usableRange){
             continue;   // skip if range is bad
         }
         else{
-            float cartesian_x, cartesian_y;
-            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
-            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
-            scan.x[valid_points] = cartesian_x;
-            scan.y[valid_points] = cartesian_y;
+//            float cartesian_x, cartesian_y;
+//            cartesian_x = test_input_memory[i] * cosf(lidar.angles[i]);
+//            cartesian_y = test_input_memory[i] * sinf(lidar.angles[i]);
+            float test_input = test_input_memory[i];
+            float lidar_angle = lidar.angles[i];
+
+
+            scan.x[valid_points] = test_input * cosf(lidar_angle);
+            scan.y[valid_points] = test_input * sinf(lidar_angle);
             valid_points++;
         }
     }
@@ -607,7 +611,7 @@ void FastMatch(const float POSE[3], const float searchResolution[3]){
         }
 //        printf("bestPose = %f  %f  %f\n", bestPose[0], bestPose[1], bestPose[2]);
 
-        iter = iter + 1;
+        iter++;
     }
     FastMatchParameters.pose[0] = bestPose[0];
     FastMatchParameters.pose[1] = bestPose[1];
@@ -817,7 +821,7 @@ void FastMatch2(const float POSE[3], const float searchResolution[3]){
         }
 //        printf("bestPose = %f  %f  %f\n", bestPose[0], bestPose[1], bestPose[2]);
 
-        iter = iter + 1;
+        iter++;
     }
     FastMatchParameters.pose[0] = bestPose[0];
     FastMatchParameters.pose[1] = bestPose[1];
