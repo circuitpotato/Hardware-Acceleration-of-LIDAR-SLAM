@@ -134,17 +134,20 @@ void Transform(const float POSE[3]){
     float theta = POSE[2];
     float ct = cosf(theta);
     float st = sinf(theta);
-    float R[2][2] = {{ct, -st}, {st,ct}};
+//    float R[2][2] = {{ct, -st}, {st,ct}};
 
     for (int i = 0; i < scan.size; i++){
         // multiply scan(x,y) by transformed R
         // scan is (N,2) matrix and R is (2,2) matrix
-        float transformed_x = (R[0][0] * scan.x[i] + R[1][0] * scan.y[i]);
-        float transformed_y = (R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
+
+//        float transformed_x = (R[0][0] * scan.x[i] + R[1][0] * scan.y[i]);
+//        float transformed_y = (R[0][1] * scan.x[i] + R[1][1] * scan.y[i]);
+        float scan_x = scan.x[i];
+        float scan_y = scan.y[i];
 
         // Translate to points on world frame
-        scan.tx[i] = transformed_x + tx;
-        scan.ty[i] = transformed_y + ty;
+        scan.tx[i] = (ct * scan_x + st * scan_y) + tx;
+        scan.ty[i] = (-st * scan_x + ct * scan_y) + ty;
     }
 }
 
@@ -190,17 +193,19 @@ void ExtractLocalMap(const float BORDERSIZE){
     float maxY = scan.ty[0];
 
     for (int i = 1; i < scan.size; i++) {
-        if (scan.tx[i] < minX) {
-            minX = scan.tx[i];
+        float scan_tx = scan.tx[i];
+        float scan_ty = scan.ty[i];
+        if (scan_tx < minX) {
+            minX = scan_tx;
         }
-        if (scan.tx[i] > maxX) {
-            maxX = scan.tx[i];
+        if (scan_tx > maxX) {
+            maxX = scan_tx;
         }
-        if (scan.ty[i] < minY) {
-            minY = scan.ty[i];
+        if (scan_ty < minY) {
+            minY = scan_ty;
         }
-        if (scan.ty[i] > maxY) {
-            maxY = scan.ty[i];
+        if (scan_ty > maxY) {
+            maxY = scan_ty;
         }
     }
 
@@ -300,17 +305,19 @@ void OccupationalGrid(const float PIXELSIZE, const float PIXELSIZE2){
     float maxXY[2] = {local_map.x[0], local_map.y[0]};
 
     for(int a = 0; a < local_map.size; a++){
-        if (local_map.x[a] < minXY[0]){
-            minXY[0] = local_map.x[a];
+        float local_map_x = local_map.x[a];
+        float local_map_y = local_map.y[a];
+        if (local_map_x < minXY[0]){
+            minXY[0] = local_map_x;
         }
-        if (local_map.x[a] > maxXY[0]){
-            maxXY[0] = local_map.x[a];
+        if (local_map_x > maxXY[0]){
+            maxXY[0] = local_map_x;
         }
-        if (local_map.y[a] < minXY[1]){
-            minXY[1] = local_map.y[a];
+        if (local_map_y < minXY[1]){
+            minXY[1] = local_map_y;
         }
-        if (local_map.y[a] > maxXY[1]){
-            maxXY[1] = local_map.y[a];
+        if (local_map_y > maxXY[1]){
+            maxXY[1] = local_map_y;
         }
     }
 
