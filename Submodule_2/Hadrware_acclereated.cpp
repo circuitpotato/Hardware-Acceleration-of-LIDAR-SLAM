@@ -220,7 +220,7 @@ typedef struct {
 MyGrid occ_grid;
 
 // Helper function to calculate the Euclidean 
-float euclidean_distance_square(int x1, int y1, int x2, int y2,auto accel) {
+float euclidean_distance_compute(int x1, int y1, int x2, int y2,auto accel) {
     float output;
     accel->Attach(0x20, &x1,RegisterAccess::WO ,1);
     accel->Attach(0x30, &y1,RegisterAccess::WO ,1);
@@ -244,7 +244,7 @@ void euclidean_distance_transform(const int input[200][200], float output[200][2
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
                         if (input[j][i]) {
-                            float dist = euclidean_distance_square(x, y, i, j, accel);
+                            float dist = euclidean_distance_compute(x, y, i, j, accel);
                             if (dist < min_dist ) {
                                 min_dist = dist;
                             }
@@ -268,7 +268,7 @@ void euclidean_distance_transform2(const int input[400][400], float output[400][
                 for (int j = 0; j < height; ++j) {
                     for (int i = 0; i < width; ++i) {
                         if (input[j][i]) {
-                            float dist = euclidean_distance_square(x, y, i, j, accel);
+                            float dist = euclidean_distance_compute(x, y, i, j, accel);
                             if (dist < min_dist ) {
                                 min_dist = dist;
                             }
