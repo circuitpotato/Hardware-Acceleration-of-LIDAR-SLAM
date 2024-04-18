@@ -15,9 +15,9 @@ void euclidean_distance_transform(int input_map[200][200], float output_distance
             if (input_map[x][y] == 1) { // Object cell
                 for (int i = 0; i < width; i++) {
                     for (int j = 0; j < height; j++) {
-                        double dist = sqrt((x - i) * (x - i) + (y - j) * (y - j));
-                        if (dist < distance[i][j]) {
-                            distance[i][j] = (float)dist;
+                        double dist = (x - i) * (x - i) + (y - j) * (y - j);
+                        if (dist < distance[i][j] * distance[i][j]) {
+                            distance[i][j] = sqrt((float)dist);
                         }
                     }
                 }
@@ -32,6 +32,7 @@ void euclidean_distance_transform(int input_map[200][200], float output_distance
         }
     }
 }
+
 void euclidean_distance_transform2(int input_map[400][400], float output_distance_map[400][400], int width, int height) {
     // Compute the Euclidean distance transform using a Voronoi algorithm
     float MAX_DIST = 10;
@@ -49,9 +50,9 @@ void euclidean_distance_transform2(int input_map[400][400], float output_distanc
             if (input_map[x][y] == 1) { // Object cell
                 for (int i = 0; i < width; i++) {
                     for (int j = 0; j < height; j++) {
-                        double dist = sqrt((x - i) * (x - i) + (y - j) * (y - j));
-                        if (dist < distance[i][j]) {
-                            distance[i][j] = (float)dist;
+                        double dist = (x - i) * (x - i) + (y - j) * (y - j);
+                        if (dist < distance[i][j] * distance[i][j]) {
+                            distance[i][j] = sqrt((float)dist);
                         }
                     }
                 }
