@@ -839,7 +839,7 @@ int main(){
     float miniUpdateDR = 0.0872665f;    // deg2rad(5) in MATLAB
     int scan_transform_flag;
 
-    fp = fopen("C:/Lynn_SSD/NUS_Tingzz/EE4002D/Research/code_dump/my_CSM_C_test/A.csv", "r");
+    fp = fopen("C:/Lynn_SSD/NUS_Tingzz/EE4002D/Research/code_dump/my_CSM_C_test/lidar_dataset.csv", "r");
     openFileValidity(fp);     // check if file can be open
     readDatasetLineByLine(fp);  // read 1st line of code (scan 0)
     SetLidarParameters();   // declare lidar parameters since there is no actual lidar
